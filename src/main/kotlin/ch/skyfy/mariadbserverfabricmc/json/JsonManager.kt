@@ -13,33 +13,21 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
 
-class JsonManager<DATA, DEFAULT>(
+class JsonManager<DATA : Validatable, DEFAULT : Defaultable<DATA>>(
     private val gson: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().create(),
     private val file: File,
     private val dataClass: KClass<out Validatable>,
     private val dataClass2: KClass<DATA>,
     private val defaultConfigClass: KClass<out Defaultable<DATA>>
-) where DATA : Validatable, DEFAULT : Defaultable<DATA> {
+) {
 
-    fun getOrCreateConfig(): DATA {
-        val config: DATA
-        try {
-            if (file.exists()) config = get()
-            else {
-                config = defaultConfigClass::createInstance.invoke().getDefault()
-
-//                val actualRuntimeClassConstructor = defaultConfigClass::class.constructors.first()
-//                val defaultConfig = actualRuntimeClassConstructor.call()
-//                val d = defaultConfig.safeCast(defaultConfigClass)
-//                config = d?.getDefault()!!
-//                config = defaultConfigClass.getDeclaredConstructor().newInstance()?.getDefault()!!
-                save(config)
-            }
-        } catch (e: java.lang.Exception) {
-            throw MariaDBServerFabricMCModException(e)
-        }
-        return config
+    fun getOrCreateConfig(): DATA = try {
+        if (file.exists()) get()
+        else save(defaultConfigClass::createInstance.invoke().getDefault())
+    } catch (e: java.lang.Exception) {
+        throw MariaDBServerFabricMCModException(e)
     }
+
 
     @Throws(IOException::class)
     fun get(): DATA {
@@ -47,8 +35,9 @@ class JsonManager<DATA, DEFAULT>(
     }
 
     @Throws(IOException::class)
-    fun save(data: DATA) {
+    fun save(config: DATA): DATA {
         file.parentFile.mkdirs()
-        FileWriter(file).use { writer -> gson.toJson(data, dataClass.java, writer) }
+        FileWriter(file).use { writer -> gson.toJson(config, dataClass.java, writer) }
+        return config
     }
 }
