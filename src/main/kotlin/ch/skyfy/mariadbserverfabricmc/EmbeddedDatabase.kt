@@ -1,8 +1,8 @@
 package ch.skyfy.mariadbserverfabricmc
 
-import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod
 import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod.Companion.LOGGER
 import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod.Companion.MOD_ID
+import ch.skyfy.mariadbserverfabricmc.config.Configs
 import ch.vorburger.exec.ManagedProcessException
 import ch.vorburger.mariadb4j.DB
 import ch.vorburger.mariadb4j.DBConfigurationBuilder
@@ -19,29 +19,32 @@ import kotlin.io.path.exists
 class EmbeddedDatabase {
 
     companion object {
-         private const val databaseFolderName: String = "database"
-         val databaseFolder: Path = MariaDBServerFabricMCMod.CONFIG_DIRECTORY.resolve(databaseFolderName)
+        private const val databaseFolderName: String = "database"
+        val databaseFolder: Path = MariaDBServerFabricMCMod.CONFIG_DIRECTORY.resolve(databaseFolderName)
+        private const val mariadbFolderName: String = "mariadb-10.8.3-winx64"
+        val mariadbFolder: Path = databaseFolder.resolve(mariadbFolderName)
     }
-
-    private val mariadbFolderName: String = "mariadb-10.8.3-winx64"
-    private val mariadbFolder: Path = databaseFolder.resolve(mariadbFolderName)
 
     private val db: DB
 
     init {
 
-        if(!databaseFolder.exists())databaseFolder.toFile().mkdir()
+        if (!databaseFolder.exists()) databaseFolder.toFile().mkdir()
 
         registerEvents()
         installMariaDB()
 
         val builder = DBConfigurationBuilder.newBuilder()
 
-//        builder.isUnpackingFromClasspath = false
-//        builder.baseDir = mariadbFolder.toAbsolutePath().toString()
+        val config = Configs.MOD_CONFIG.data
+        builder.port = config.port
 
-        builder.port = 3307
-        builder.dataDir = databaseFolder.resolve("data").toAbsolutePath().toString()
+        if (config.baseDir != null) {
+            builder.isUnpackingFromClasspath = false
+            builder.baseDir = config.baseDir
+        }
+        if(config.dataDir != null)
+            builder.dataDir = config.dataDir
 
         db = DB.newEmbeddedDB(builder.build())
     }

@@ -24,9 +24,8 @@ object JsonManager{
     }
 
     @Throws(IOException::class)
-    inline fun <reified DATA : Validatable> get(file: File, gson: Gson): DATA {
+    inline fun <reified DATA : Validatable> get(file: File, gson: Gson): DATA =
         FileReader(file).use { reader -> return gson.fromJson(reader, DATA::class.java) }
-    }
 
     @Throws(IOException::class)
     inline fun <reified DATA : Validatable> save(config: DATA, file: File, gson: Gson): DATA {

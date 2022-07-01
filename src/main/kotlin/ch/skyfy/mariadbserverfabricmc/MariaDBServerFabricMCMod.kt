@@ -25,7 +25,7 @@ class MariaDBServerFabricMCMod : DedicatedServerModInitializer {
     init {
         createConfigDir()
         ReflectionUtils.loadClassesByReflection(arrayOf(Configs::class.java))
-//        EmbeddedDatabase().startMariaDBServer()
+        EmbeddedDatabase().startMariaDBServer()
     }
 
     override fun onInitializeServer() {
