@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "mariadb_server_fabricmc",
+  "version": "${version}",
+  "name": "MariaDB Server FabricMC",
+  "description": "Just start a mariadb server when the mod is loaded. Then others mod can use this to create their own database with some content",
+  "authors": [
+    "Skyfy16"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/mariadb_server_fabricmc/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      {
+        "adapter": "kotlin",
+        "value": "ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod"
+      }
+    ],
+    "main": [
+      
+    ]
+  },
+  "mixins": [
+
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.8",
+    "fabric": "*",
+    "minecraft": "1.19",
+    "fabric-language-kotlin": ">=1.8.0+kotlin.1.7.0"
+  }
+}
