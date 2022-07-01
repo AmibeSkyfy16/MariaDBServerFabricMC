@@ -13,7 +13,7 @@ object Configs {
         override fun getDefault(): ModConfig = ModConfig(
             3308,
             EmbeddedDatabase.databaseFolder.resolve("dataDir").absolutePathString(),
-            EmbeddedDatabase.mariadbFolder.absolutePathString())
+            null)
     }
 
 }
