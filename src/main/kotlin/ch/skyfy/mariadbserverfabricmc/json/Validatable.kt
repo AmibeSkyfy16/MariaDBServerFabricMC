@@ -16,7 +16,7 @@ interface Validatable {
 
     /**
      * Check that the primitive type values are correct.
-     * Ex: "port" can't be less than 0 or greater than 65535
+     * Ex: "port (for the mariadb server connection" can't be less than 0 or greater than 65535
      */
     fun validatePrimitivesType(errors: MutableList<String?>?)
 
