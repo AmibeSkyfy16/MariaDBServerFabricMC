@@ -21,16 +21,13 @@ class MariaDBServerFabricMCMod : DedicatedServerModInitializer {
         val LOGGER: Logger = LogManager.getLogger(MariaDBServerFabricMCMod::class.java)
     }
 
-
     init {
         createConfigDir()
         ReflectionUtils.loadClassesByReflection(arrayOf(Configs::class.java))
         EmbeddedDatabase().startMariaDBServer()
     }
 
-    override fun onInitializeServer() {
-
-    }
+    override fun onInitializeServer() {}
 
     private fun createConfigDir() {
         try {
