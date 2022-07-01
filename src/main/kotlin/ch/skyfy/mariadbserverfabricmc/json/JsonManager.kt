@@ -9,35 +9,29 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
-import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
+object JsonManager{
 
-class JsonManager<DATA : Validatable, DEFAULT : Defaultable<DATA>>(
-    private val gson: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().create(),
-    private val file: File,
-    private val dataClass: KClass<out Validatable>,
-    private val dataClass2: KClass<DATA>,
-    private val defaultConfigClass: KClass<out Defaultable<DATA>>
-) {
-
-    fun getOrCreateConfig(): DATA = try {
-        if (file.exists()) get()
-        else save(defaultConfigClass::createInstance.invoke().getDefault())
+    inline fun <reified DATA : Validatable, reified DEFAULT : Defaultable<DATA>> getOrCreateConfig(
+        file: File,
+        gson: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().create()
+    ): DATA = try {
+        if (file.exists()) get(file, gson)
+        else save(DEFAULT::class.createInstance().getDefault(), file, gson)
     } catch (e: java.lang.Exception) {
         throw MariaDBServerFabricMCModException(e)
     }
 
-
     @Throws(IOException::class)
-    fun get(): DATA {
-        FileReader(file).use { reader -> return gson.fromJson(reader, dataClass2.java) }
+    inline fun <reified DATA : Validatable> get(file: File, gson: Gson): DATA {
+        FileReader(file).use { reader -> return gson.fromJson(reader, DATA::class.java) }
     }
 
     @Throws(IOException::class)
-    fun save(config: DATA): DATA {
+    inline fun <reified DATA : Validatable> save(config: DATA, file: File, gson: Gson): DATA {
         file.parentFile.mkdirs()
-        FileWriter(file).use { writer -> gson.toJson(config, dataClass.java, writer) }
+        FileWriter(file).use { writer -> gson.toJson(config, DATA::class.java, writer) }
         return config
     }
 }

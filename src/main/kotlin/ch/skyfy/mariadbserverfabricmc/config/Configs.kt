@@ -7,13 +7,10 @@ import kotlin.io.path.absolutePathString
 
 object Configs {
 
-    val MOD_CONFIG: JsonData<ModConfig, ModConfigDefault> = JsonData("config.json", ModConfig::class,ModConfig::class, ModConfigDefault::class)
+    val MOD_CONFIG: JsonData<ModConfig> = JsonData.invoke("config.json")
 
-    public class ModConfigDefault : Defaultable<ModConfig>{
-        public override fun getDefault(): ModConfig {
-            return ModConfig(3307, EmbeddedDatabase.databaseFolder.resolve("dataDir").absolutePathString(), null)
-        }
-
+    class ModConfigDefault : Defaultable<ModConfig>{
+        override fun getDefault(): ModConfig = ModConfig(3307, EmbeddedDatabase.databaseFolder.resolve("dataDir").absolutePathString(), null)
     }
 
 }
