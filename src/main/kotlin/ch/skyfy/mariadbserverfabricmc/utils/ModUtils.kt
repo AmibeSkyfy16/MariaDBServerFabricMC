@@ -1,10 +1,9 @@
 package ch.skyfy.mariadbserverfabricmc.utils
 
 import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod.Companion.CONFIG_DIRECTORY
-import java.io.File
+import java.nio.file.Path
 
 object ModUtils {
-    fun getRelativeFile(relativeFilePath: String): File {
-        return CONFIG_DIRECTORY.resolve(relativeFilePath).toFile()
-    }
+    fun getRelativeFileAsPath(relativeFilePath: String): Path = CONFIG_DIRECTORY.resolve(relativeFilePath)
+
 }

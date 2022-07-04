@@ -25,7 +25,7 @@ class EmbeddedDatabase {
         val mariadbFolder: Path = databaseFolder.resolve(mariadbFolderName)
     }
 
-    private val db: DB
+    val db: DB
 
     init {
 
@@ -63,7 +63,8 @@ class EmbeddedDatabase {
 
         if (dest.exists() && !mariadbFolder.exists()) {
             LOGGER.info("Extracting files for MariaDB server in ${dest.parent.absolutePathString()}")
-            ZipFile(dest.toFile()).extractAll(mariadbFolder.toAbsolutePath().toString())
+            LOGGER.info("dest.absolutePathString(): ${dest.absolutePathString()}")
+            ZipFile(dest.absolutePathString()).extractAll(mariadbFolder.toAbsolutePath().toString())
             dest.deleteIfExists()
         }
     }
