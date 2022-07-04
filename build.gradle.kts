@@ -2,10 +2,7 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-val transitiveInclude: Configuration by configurations.creating {
-//    exclude(group = "org.jetbrains.kotlin")
-//    exclude(group = "com.mojang")
-}
+val transitiveInclude: Configuration by configurations.creating
 
 fun DependencyHandlerScope.includeTransitive(
     root: ResolvedDependency?,
@@ -62,14 +59,8 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
     transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
-    transitiveInclude(implementation("org.mariadb.jdbc:mariadb-java-client:3.0.5")!!)
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.1")!!)
     transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.0")!!)
-
-
-//    transitiveInclude.resolvedConfiguration.resolvedArtifacts.forEach {
-//        include(it.moduleVersion.id.toString())
-//    }
 
     handleIncludes(project, transitiveInclude)
 
