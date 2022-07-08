@@ -48,6 +48,9 @@ version = property("mod_version")!!
 repositories {
     mavenCentral()
     mavenLocal()
+    flatDir {
+        dirs("libs")
+    }
 }
 
 dependencies {
@@ -64,6 +67,7 @@ dependencies {
 
     handleIncludes(project, transitiveInclude)
 
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.7.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
     testImplementation("org.junit.platform:junit-platform-runner:1.8.2")
@@ -103,6 +107,11 @@ tasks {
 
     named<Test>("test") {
         useJUnitPlatform()
+
+        testLogging {
+            outputs.upToDateWhen { false } // When the build task is executed, stderr-stdout of test classes will be show
+            showStandardStreams = true
+        }
     }
 
 }

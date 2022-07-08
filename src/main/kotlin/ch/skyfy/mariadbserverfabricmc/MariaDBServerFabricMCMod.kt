@@ -1,7 +1,6 @@
 package ch.skyfy.mariadbserverfabricmc
 
 
-import ch.skyfy.mariadbserverfabricmc.api.EmbeddedDatabaseAPI
 import ch.skyfy.mariadbserverfabricmc.config.Configs
 import ch.skyfy.mariadbserverfabricmc.exceptions.MariaDBServerFabricMCModException
 import ch.skyfy.mariadbserverfabricmc.utils.ReflectionUtils
@@ -27,7 +26,7 @@ class MariaDBServerFabricMCMod : DedicatedServerModInitializer {
     init {
         createConfigDir()
         ReflectionUtils.loadClassesByReflection(arrayOf(Configs::class.java))
-        EmbeddedDatabaseAPI
+        EmbeddedDatabase()
     }
 
     override fun onInitializeServer() {}

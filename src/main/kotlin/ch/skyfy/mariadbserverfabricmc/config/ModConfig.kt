@@ -2,7 +2,7 @@ package ch.skyfy.mariadbserverfabricmc.config
 
 import ch.skyfy.mariadbserverfabricmc.json.Validatable
 
-data class ModConfig(val port: Int, val dataDir: String?, val baseDir: String?) : Validatable {
+data class ModConfig(val port: Int) : Validatable {
     override fun validate() {
         validatePrimitivesType(mutableListOf())
     }

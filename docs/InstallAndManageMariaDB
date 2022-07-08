@@ -8,9 +8,9 @@ this file will contain some information about installing and managing a mariadb 
     3. With a command prompt (Started as Admin), execute this command: cd "C:\mariadb-10.8.3-winx64\bin" (adapt the folder path according to where you extracted the package)
     4. Create a folder called data anywhere on the computer. For my part, I created it in the folder of mariadb, here : C:\mariadb-10.8.3-winx64\data
     5. Then execute this command: .\mariadb-install-db.exe --datadir=C:\\mariadb-10.8.3-winx64\data --password=12345678
-        5.1 With custom port: .\mysqld.exe --console --datadir=C:\Users\Skyfy16\Downloads\mariadb-10.8.3-winx64\data --port 3307
     6. Now we can use mysqld.exe to start the mariadb instance pointing to the data directory.
         So execute this command: .\mysqld.exe --console --datadir=C:\Users\Skyfy16\Downloads\mariadb-10.8.3-winx64\data
+        With custom port: .\mysqld.exe --console --datadir=C:\Users\Skyfy16\Downloads\mariadb-10.8.3-winx64\data --port 3307
 
     7. Now open another command prompt and execute this two commands:
         1. cd "C:\mariadb-10.8.3-winx64\bin"
@@ -21,7 +21,7 @@ this file will contain some information about installing and managing a mariadb 
         Now you can create schemas and tables
 
      8. To stop the server, use this command: .\mysqladmin.exe -u root -p shutdown
-        8.1 AWith custom port: .\mysqladmin.exe -u root -p shutdown --port 3307
+        8.1 With custom port: .\mysqladmin.exe -u root -p shutdown --port 3307
 
 
 
