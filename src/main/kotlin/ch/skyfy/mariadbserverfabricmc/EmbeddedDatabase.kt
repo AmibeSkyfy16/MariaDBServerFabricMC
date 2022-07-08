@@ -5,7 +5,6 @@ import ch.skyfy.mariadbserverfabricmc.mariadbkotlin.DB
 import ch.skyfy.mariadbserverfabricmc.mariadbkotlin.DBConfig
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import java.nio.file.Path
-import kotlin.io.path.absolutePathString
 
 class EmbeddedDatabase {
 
@@ -16,11 +15,11 @@ class EmbeddedDatabase {
     private val db: DB
 
     init {
-        val dbconfig = DBConfig.Builder()
-            .port(Configs.MOD_CONFIG.data.port)
-            .mariaDBVersion(DBConfig.MariaDBVersion.STABLE_10_8_3)
-            .installationDir(databaseFolder.absolutePathString())
-            .build()
+        val dbconfig = DBConfig.Builder(
+            port = Configs.MOD_CONFIG.data.port,
+            mariaDBVersion = DBConfig.MariaDBVersion.STABLE_10_8_3,
+            installationDir = databaseFolder
+        ).build()
 
         db = DB(dbconfig)
         db.setupFiles()

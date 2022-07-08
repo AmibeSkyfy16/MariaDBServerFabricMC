@@ -1,15 +1,17 @@
 package ch.skyfy.mariadbserverfabricmc.mariadbkotlin
 
 import org.apache.commons.lang3.SystemUtils
+import java.nio.file.Path
+import java.nio.file.Paths
 
 @Suppress("unused")
 class DBConfig private constructor(
     val port: Int,
     val mariadbVersion: MariaDBVersion,
-    val installationDir: String,
-    var mariaDBFolder: String,
-    var mariaDBFolderAsZip: String,
-    var dataDir: String,
+    val installationDir: Path,
+    var mariaDBFolder: Path,
+    var mariaDBFolderAsZip: Path,
+    var dataDir: Path,
     val os: OS,
     val isRunInThread: Boolean
 ) {
@@ -35,18 +37,18 @@ class DBConfig private constructor(
     data class Builder(
         var port: Int = 3306,
         var mariaDBVersion: MariaDBVersion = MariaDBVersion.STABLE_10_8_3,
-        var installationDir: String = SystemUtils.JAVA_IO_TMPDIR + "/EmbeddedMariaDB",
-        var mariaDBFolderAsZip: String = installationDir + "/${mariaDBVersion.filename}",
-        var mariaDBFolder: String = mariaDBFolderAsZip.replace("\\.\\w+$".toRegex(), ""),
-        var dataDir: String = "$mariaDBFolder/data",
+        var installationDir: Path = Paths.get(SystemUtils.JAVA_IO_TMPDIR + "/EmbeddedMariaDB"),
+        var mariaDBFolderAsZip: Path = installationDir.resolve(mariaDBVersion.filename),
+        var mariaDBFolder: Path = installationDir.resolve(mariaDBFolderAsZip.fileName.toString().replace("\\.\\w+$".toRegex(), "")),
+        var dataDir: Path = mariaDBFolder.resolve("data"),
         var os: OS = if (SystemUtils.IS_OS_WINDOWS) OS.WINDOWS else OS.LINUX,
         var isRunInThread: Boolean = false
     ) {
         fun port(port: Int) = apply { this.port = port }
         fun mariaDBVersion(mariaDBVersion: MariaDBVersion) = apply { this.mariaDBVersion = mariaDBVersion }
-        fun installationDir(installationDir: String) = apply { this.installationDir = installationDir }
-        fun mariaDBFolder(mariaDBFolder: String) = apply { this.mariaDBFolder = mariaDBFolder }
-        fun dataDir(dataDir: String) = apply { this.dataDir = dataDir }
+        fun installationDir(installationDir: Path) = apply { this.installationDir = installationDir }
+        fun mariaDBFolder(mariaDBFolder: Path) = apply { this.mariaDBFolder = mariaDBFolder }
+        fun dataDir(dataDir: Path) = apply { this.dataDir = dataDir }
         fun os(os: OS) = apply { this.os = os }
         fun isRunInThread(isRunInThread: Boolean) = apply { this.isRunInThread = isRunInThread }
         fun build() = DBConfig(port, mariaDBVersion, installationDir, mariaDBFolder, mariaDBFolderAsZip, dataDir, os, isRunInThread)

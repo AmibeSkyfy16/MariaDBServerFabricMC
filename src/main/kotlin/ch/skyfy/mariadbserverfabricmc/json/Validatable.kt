@@ -12,13 +12,13 @@ interface Validatable {
      *
      * This should not happen at all
      */
-    fun validate()
+    fun validate(){}
 
     /**
      * Check that the primitive type values are correct.
      * Ex: "port (for the mariadb server connection" can't be less than 0 or greater than 65535
      */
-    fun validatePrimitivesType(errors: MutableList<String?>?)
+    fun validatePrimitivesType(errors: MutableList<String?>?){}
 
     /**
      * Performs a thorough check of all fields in a class to make sure nothing is null
