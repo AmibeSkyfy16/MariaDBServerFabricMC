@@ -38,7 +38,7 @@ fun DependencyHandlerScope.handleIncludes(project: Project, configuration: Confi
 
 plugins {
     id("fabric-loom") version "0.12-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.7.0"
+    id("org.jetbrains.kotlin.jvm") version "1.7.10"
 }
 
 val archivesBaseName = property("archives_base_name")

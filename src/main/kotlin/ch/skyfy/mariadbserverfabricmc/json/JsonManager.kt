@@ -29,7 +29,7 @@ object JsonManager{
         Files.newBufferedReader(file).use { reader -> return gson.fromJson(reader, DATA::class.java) }
 
     @Throws(IOException::class)
-    inline fun <reified DATA : Validatable> save(config: DATA, file: Path, gson: Gson): DATA {
+    inline fun <reified DATA : Validatable> save(config: DATA, file: Path, gson: Gson = GsonBuilder().setPrettyPrinting().serializeNulls().create()): DATA {
         file.parent.createDirectories()
         Files.newBufferedWriter(file).use { writer -> gson.toJson(config, DATA::class.java, writer) }
         return config

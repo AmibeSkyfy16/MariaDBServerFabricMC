@@ -4,6 +4,7 @@ package ch.skyfy.mariadbserverfabricmc.mariadbkotlin
 
 import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod
 import ch.skyfy.mariadbserverfabricmc.json.JsonManager
+import ch.skyfy.mariadbserverfabricmc.persistants.EmbeddedDB
 import ch.skyfy.mariadbserverfabricmc.persistants.Persistants
 import ch.skyfy.mariadbserverfabricmc.persistants.Status
 import kotlinx.coroutines.CoroutineScope
@@ -17,9 +18,10 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.BufferedReader
 import java.io.FileOutputStream
+import java.io.IOException
 import java.io.InputStreamReader
 import java.net.URL
-import java.nio.channels.Channels
+import java.nio.channels.Channels.newChannel
 import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
@@ -35,16 +37,18 @@ class DB(
     var startedCallback: Consumer<DB> = Consumer<DB> {},
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 ) : CoroutineScope {
-
-    private val logger: Logger = LogManager.getLogger(DB::class)
+    companion object {
+        private val LOGGER: Logger = LogManager.getLogger(DB::class)
+    }
 
     var isAlreadyDownloaded = false
     var isSetupFilesDone = false
     var isStarted = false
 
-    fun setupFiles() {
+    private val embeddedDB = EmbeddedDB() // Just a dataclass to save information about where the db is stored, etc.
 
-        logger.info("Setting up files ...")
+    fun setupFiles() {
+        LOGGER.info("Setting up files ...")
 
         if (!dbConfig.isRunInThread) setupFilesImpl()
         else launch {
@@ -69,8 +73,15 @@ class DB(
 
         if (!dbConfig.installationDir.exists()) dbConfig.installationDir.createDirectories()
 
-        FileOutputStream(dbConfig.mariaDBFolderAsZip.toFile()).channel
-            .transferFrom(Channels.newChannel(URL(DBConfig.VERSION[dbConfig.mariadbVersion]?.get(dbConfig.os)).openStream()), 0, Long.MAX_VALUE)
+        try {
+            FileOutputStream(dbConfig.downloadedMariaFile.toFile()).channel.transferFrom(newChannel(URL(DBConfig.VERSION[dbConfig.mariadbVersion]?.get(dbConfig.os)).openStream()), 0, Long.MAX_VALUE)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return
+        }
+
+        Persistants.PERSISTANT_DATA.data.downloadStatus = Status.SUCCESS
+        JsonManager.save(Persistants.PERSISTANT_DATA.data, Persistants.PERSISTANT_DATA.relativeFilePath)
     }
 
     /**
@@ -78,33 +89,33 @@ class DB(
      * The problem is that often some files are not copied. When there are several nested zip files, or sometimes empty folders, etc.
      */
     private fun extract() {
-        if(Persistants.PERSISTANT_DATA.data.extractStatus == Status.SUCCESS){
+        if (Persistants.PERSISTANT_DATA.data.extractStatus == Status.SUCCESS) {
             MariaDBServerFabricMCMod.LOGGER.info("Skip -> The database installation files have already been successfully extracted")
             return
         }
 
-        val zipFile = ZipFile(dbConfig.mariaDBFolderAsZip.toFile())
+        val zipFile = ZipFile(dbConfig.downloadedMariaFile.toFile())
         zipFile.isRunInThread = false
 
         try {
             zipFile.extractAll(dbConfig.installationDir.toRealPath().absolutePathString())
-        }catch (e: ZipException){
+        } catch (e: ZipException) {
             e.printStackTrace()
             return
         }
         Persistants.PERSISTANT_DATA.data.extractStatus = Status.SUCCESS
-//        JsonManager.save()
+        JsonManager.save(Persistants.PERSISTANT_DATA.data, Persistants.PERSISTANT_DATA.relativeFilePath)
 //        PathUtils.deleteFile(Paths.get(dbConfig.mariaDBFolderAsZip))
     }
 
     private fun install() {
-        if (isAlreadyDownloaded) {
-            if (dbConfig.dataDir.exists() && !PathUtils.isEmptyDirectory(dbConfig.dataDir)) {
-                println("The installation will not take place, because there is already a datadir folder containing files")
-                return
-            }else
-                dbConfig.dataDir.createDirectory()
-        }
+
+        if (Persistants.PERSISTANT_DATA.data.installStatus == Status.SUCCESS && dbConfig.dataDir.exists() && !PathUtils.isEmptyDirectory(dbConfig.dataDir)) {
+            println("The installation will not take place, because there is already a datadir folder containing files")
+            return
+        } else
+            dbConfig.dataDir.createDirectory()
+
 
         println("Running: mariadb-install-db.exe --datadir=${dbConfig.dataDir.toRealPath().absolutePathString()}")
 
@@ -123,6 +134,7 @@ class DB(
                 lines.add(line)
                 if (line == "Creation of the database was successful") {
                     Persistants.PERSISTANT_DATA.data.installStatus = Status.SUCCESS
+                    JsonManager.save(Persistants.PERSISTANT_DATA.data, Persistants.PERSISTANT_DATA.relativeFilePath)
                     lines.forEach(::println)
                 }
             }
@@ -181,24 +193,24 @@ class DB(
     }
 
     fun stop() {
-        launch {
-            println("Running command: mysqladmin.exe --user=root ---password=\"\" shutdown --port=${dbConfig.port}")
+//        launch {
+        println("Running command: mysqladmin.exe --user=root ---password=\"\" shutdown --port=${dbConfig.port}")
 
-            val args = listOf("cmd", "/c", "\"mysqladmin.exe\" --user=root --password=\"\" shutdown --port=${dbConfig.port}")
+        val args = listOf("cmd", "/c", "\"mysqladmin.exe\" --user=root --password=\"\" shutdown --port=${dbConfig.port}")
 
-            val pb = ProcessBuilder(args)
-            pb.directory(dbConfig.mariaDBFolder.resolve("bin").toFile())
-            pb.redirectErrorStream(true)
-            pb.environment()
+        val pb = ProcessBuilder(args)
+        pb.directory(dbConfig.mariaDBFolder.resolve("bin").toFile())
+        pb.redirectErrorStream(true)
+        pb.environment()
 
-            val process = withContext(Dispatchers.IO) { pb.start() }
+        val process = pb.start()
 
-            BufferedReader(InputStreamReader(process.inputStream)).use {
-                while (true) {
-                    val line = it.readLine() ?: break
-                    println(line)
-                }
+        BufferedReader(InputStreamReader(process.inputStream)).use {
+            while (true) {
+                val line = it.readLine() ?: break
+                println(line)
             }
         }
+//        }
     }
 }

@@ -10,7 +10,7 @@ class DBConfig private constructor(
     val mariadbVersion: MariaDBVersion,
     val installationDir: Path,
     var mariaDBFolder: Path,
-    var mariaDBFolderAsZip: Path,
+    var downloadedMariaFile: Path,
     var dataDir: Path,
     val os: OS,
     val isRunInThread: Boolean
@@ -38,8 +38,8 @@ class DBConfig private constructor(
         var port: Int = 3306,
         var mariaDBVersion: MariaDBVersion = MariaDBVersion.STABLE_10_8_3,
         var installationDir: Path = Paths.get(SystemUtils.JAVA_IO_TMPDIR + "/EmbeddedMariaDB"),
-        var mariaDBFolderAsZip: Path = installationDir.resolve(mariaDBVersion.filename),
-        var mariaDBFolder: Path = installationDir.resolve(mariaDBFolderAsZip.fileName.toString().replace("\\.\\w+$".toRegex(), "")),
+        var downloadedMaria: Path = installationDir.resolve(mariaDBVersion.filename),
+        var mariaDBFolder: Path = installationDir.resolve(downloadedMaria.fileName.toString().replace("\\.\\w+$".toRegex(), "")),
         var dataDir: Path = mariaDBFolder.resolve("data"),
         var os: OS = if (SystemUtils.IS_OS_WINDOWS) OS.WINDOWS else OS.LINUX,
         var isRunInThread: Boolean = false
@@ -51,7 +51,7 @@ class DBConfig private constructor(
         fun dataDir(dataDir: Path) = apply { this.dataDir = dataDir }
         fun os(os: OS) = apply { this.os = os }
         fun isRunInThread(isRunInThread: Boolean) = apply { this.isRunInThread = isRunInThread }
-        fun build() = DBConfig(port, mariaDBVersion, installationDir, mariaDBFolder, mariaDBFolderAsZip, dataDir, os, isRunInThread)
+        fun build() = DBConfig(port, mariaDBVersion, installationDir, mariaDBFolder, downloadedMaria, dataDir, os, isRunInThread)
     }
 
 }
