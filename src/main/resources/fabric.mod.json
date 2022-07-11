@@ -4,9 +4,7 @@
   "version": "${version}",
   "name": "MariaDB Server FabricMC",
   "description": "Just start a mariadb server when the mod is loaded. Then others mod can use this to create their own database with some content",
-  "authors": [
-    "Skyfy16"
-  ],
+  "authors": ["Skyfy16"],
   "contact": {},
   "license": "MIT",
   "icon": "assets/mariadb_server_fabricmc/icon.png",
@@ -18,13 +16,9 @@
         "value": "ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod"
       }
     ],
-    "main": [
-      
-    ]
+    "main": []
   },
-  "mixins": [
-
-  ],
+  "mixins": [],
   "depends": {
     "fabricloader": ">=0.14.8",
     "fabric": "*",
