@@ -9,8 +9,8 @@ class DBConfig private constructor(
     val port: Int,
     val mariadbVersion: MariaDBVersion,
     val installationDir: Path,
+    var downloadedMaria: Path,
     var mariaDBFolder: Path,
-    var downloadedMariaFile: Path,
     var dataDir: Path,
     val os: OS,
     val isRunInThread: Boolean
@@ -51,7 +51,7 @@ class DBConfig private constructor(
         fun dataDir(dataDir: Path) = apply { this.dataDir = dataDir }
         fun os(os: OS) = apply { this.os = os }
         fun isRunInThread(isRunInThread: Boolean) = apply { this.isRunInThread = isRunInThread }
-        fun build() = DBConfig(port, mariaDBVersion, installationDir, mariaDBFolder, downloadedMaria, dataDir, os, isRunInThread)
+        fun build() = DBConfig(port, mariaDBVersion, installationDir, downloadedMaria,mariaDBFolder, dataDir, os, isRunInThread)
     }
 
 }

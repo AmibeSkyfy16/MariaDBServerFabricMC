@@ -2,18 +2,11 @@
 
 package ch.skyfy.mariadbserverfabricmc.mariadbkotlin
 
-import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod
-import ch.skyfy.mariadbserverfabricmc.json.JsonManager
-import ch.skyfy.mariadbserverfabricmc.persistants.EmbeddedDB
-import ch.skyfy.mariadbserverfabricmc.persistants.Persistants
-import ch.skyfy.mariadbserverfabricmc.persistants.Status
+import ch.skyfy.mariadbserverfabricmc.utils.UnzipUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.lingala.zip4j.ZipFile
-import net.lingala.zip4j.exception.ZipException
-import org.apache.commons.io.file.PathUtils
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.BufferedReader
@@ -38,18 +31,13 @@ class DB(
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 ) : CoroutineScope {
     companion object {
-        private val LOGGER: Logger = LogManager.getLogger(DB::class)
+        private val LOGGER: Logger = LogManager.getLogger(DB::class.java)
     }
 
-    var isAlreadyDownloaded = false
-    var isSetupFilesDone = false
+    var isInstalled = false
     var isStarted = false
 
-    private val embeddedDB = EmbeddedDB() // Just a dataclass to save information about where the db is stored, etc.
-
     fun setupFiles() {
-        LOGGER.info("Setting up files ...")
-
         if (!dbConfig.isRunInThread) setupFilesImpl()
         else launch {
             setupFilesImpl()
@@ -58,30 +46,31 @@ class DB(
     }
 
     private fun setupFilesImpl() {
+
+        if (dbConfig.mariaDBFolder.exists()) {
+            LOGGER.info("MariaDB is already installed here: ${dbConfig.mariaDBFolder.absolutePathString()}")
+            isInstalled = true
+            return
+        }
+
+        LOGGER.info("Setting up files ...")
+
         download()
         extract()
         install()
-        isSetupFilesDone = true
+        isInstalled = true
     }
 
     private fun download() {
-        if (dbConfig.mariaDBFolder.exists()) {
-            println("MariaDB is already installed here: ${dbConfig.mariaDBFolder.absolutePathString()}")
-            isAlreadyDownloaded = true
-            return
-        }
 
         if (!dbConfig.installationDir.exists()) dbConfig.installationDir.createDirectories()
 
         try {
-            FileOutputStream(dbConfig.downloadedMariaFile.toFile()).channel.transferFrom(newChannel(URL(DBConfig.VERSION[dbConfig.mariadbVersion]?.get(dbConfig.os)).openStream()), 0, Long.MAX_VALUE)
+            FileOutputStream(dbConfig.downloadedMaria.toFile()).channel.transferFrom(newChannel(URL(DBConfig.VERSION[dbConfig.mariadbVersion]?.get(dbConfig.os)).openStream()), 0, Long.MAX_VALUE)
         } catch (e: IOException) {
             e.printStackTrace()
             return
         }
-
-        Persistants.PERSISTANT_DATA.data.downloadStatus = Status.SUCCESS
-        JsonManager.save(Persistants.PERSISTANT_DATA.data, Persistants.PERSISTANT_DATA.relativeFilePath)
     }
 
     /**
@@ -89,35 +78,24 @@ class DB(
      * The problem is that often some files are not copied. When there are several nested zip files, or sometimes empty folders, etc.
      */
     private fun extract() {
-        if (Persistants.PERSISTANT_DATA.data.extractStatus == Status.SUCCESS) {
-            MariaDBServerFabricMCMod.LOGGER.info("Skip -> The database installation files have already been successfully extracted")
-            return
-        }
 
-        val zipFile = ZipFile(dbConfig.downloadedMariaFile.toFile())
-        zipFile.isRunInThread = false
+        UnzipUtils.unzip(dbConfig.downloadedMaria, dbConfig.installationDir)
 
-        try {
-            zipFile.extractAll(dbConfig.installationDir.toRealPath().absolutePathString())
-        } catch (e: ZipException) {
-            e.printStackTrace()
-            return
-        }
-        Persistants.PERSISTANT_DATA.data.extractStatus = Status.SUCCESS
-        JsonManager.save(Persistants.PERSISTANT_DATA.data, Persistants.PERSISTANT_DATA.relativeFilePath)
-//        PathUtils.deleteFile(Paths.get(dbConfig.mariaDBFolderAsZip))
+//        val zipFile = ZipFile(dbConfig.downloadedMaria.toFile())
+//        zipFile.isRunInThread = false
+//
+//        try {
+//            zipFile.extractAll(dbConfig.installationDir.toRealPath().absolutePathString())
+//        } catch (e: ZipException) {
+//            e.printStackTrace()
+//            return
+//        }
     }
 
     private fun install() {
+        dbConfig.dataDir.createDirectory()
 
-        if (Persistants.PERSISTANT_DATA.data.installStatus == Status.SUCCESS && dbConfig.dataDir.exists() && !PathUtils.isEmptyDirectory(dbConfig.dataDir)) {
-            println("The installation will not take place, because there is already a datadir folder containing files")
-            return
-        } else
-            dbConfig.dataDir.createDirectory()
-
-
-        println("Running: mariadb-install-db.exe --datadir=${dbConfig.dataDir.toRealPath().absolutePathString()}")
+        LOGGER.info("Running: mariadb-install-db.exe --datadir=${dbConfig.dataDir.toRealPath().absolutePathString()}")
 
         val args = listOf("cmd", "/c", "\"mariadb-install-db.exe\" --datadir=${dbConfig.dataDir.toRealPath().absolutePathString()}")
 
@@ -132,11 +110,7 @@ class DB(
             while (true) {
                 val line = it.readLine() ?: break
                 lines.add(line)
-                if (line == "Creation of the database was successful") {
-                    Persistants.PERSISTANT_DATA.data.installStatus = Status.SUCCESS
-                    JsonManager.save(Persistants.PERSISTANT_DATA.data, Persistants.PERSISTANT_DATA.relativeFilePath)
-                    lines.forEach(::println)
-                }
+                if (line == "Creation of the database was successful") lines.forEach(::println)
             }
         }
 
@@ -151,27 +125,36 @@ class DB(
     }
 
     private fun startImpl() {
-        if (!isSetupFilesDone) {
-            println("Database has not finished to setup the files !")
+        if (!isInstalled) {
+            LOGGER.info("Unable to start the database server because the installation is not finished")
+            return
+        }
+
+        if(isStarted){
+            LOGGER.info("Database server has already been started")
             return
         }
 
         val latch = CountDownLatch(1)
         launch {
 
-            println("[start, launch block] Thread name: ${Thread.currentThread().name}")
-            println("Running: mysqld.exe --console --datadir=${dbConfig.dataDir.toRealPath().absolutePathString()} --port=${dbConfig.port}")
+            LOGGER.info("[start, launch block] Thread name: ${Thread.currentThread().name}")
+            LOGGER.info("Running: mysqld.exe --console --datadir=${
+                withContext(Dispatchers.IO) {
+                    dbConfig.dataDir.toRealPath()
+                }.absolutePathString()} --port=${dbConfig.port}")
 
-            val args = listOf("cmd", "/c", "\"mysqld.exe\" --console --datadir=${dbConfig.dataDir.toRealPath().absolutePathString()} --port=${dbConfig.port}")
+            val args = listOf("cmd", "/c", "\"mysqld.exe\" --console --datadir=${
+                withContext(Dispatchers.IO) {
+                    dbConfig.dataDir.toRealPath()
+                }.absolutePathString()} --port=${dbConfig.port}")
 
             val pb = ProcessBuilder(args)
             pb.directory(dbConfig.mariaDBFolder.resolve("bin").toFile())
             pb.redirectErrorStream(true)
             pb.environment()
 
-            val process = withContext(Dispatchers.IO) {
-                pb.start()
-            }
+            val process = withContext(Dispatchers.IO) { pb.start() }
 
             BufferedReader(InputStreamReader(process.inputStream)).use {
                 val lines = mutableListOf<String>()
@@ -179,10 +162,10 @@ class DB(
                     val line = it.readLine() ?: break
 
                     if (!isStarted) lines.add(line)
-                    else println(line)
+                    else LOGGER.info(line)
 
                     if (line.contains("mysqld") && line.contains("ready for connections.")) {
-                        lines.forEach(::println) // printing output for mysqld.exe
+                        lines.forEach(LOGGER::info) // printing output for mysqld.exe
                         isStarted = true
                         latch.countDown()
                     }
@@ -193,8 +176,7 @@ class DB(
     }
 
     fun stop() {
-//        launch {
-        println("Running command: mysqladmin.exe --user=root ---password=\"\" shutdown --port=${dbConfig.port}")
+        LOGGER.info("Running command: mysqladmin.exe --user=root ---password=\"\" shutdown --port=${dbConfig.port}")
 
         val args = listOf("cmd", "/c", "\"mysqladmin.exe\" --user=root --password=\"\" shutdown --port=${dbConfig.port}")
 
@@ -203,14 +185,8 @@ class DB(
         pb.redirectErrorStream(true)
         pb.environment()
 
-        val process = pb.start()
-
-        BufferedReader(InputStreamReader(process.inputStream)).use {
-            while (true) {
-                val line = it.readLine() ?: break
-                println(line)
-            }
+        BufferedReader(InputStreamReader(pb.start().inputStream)).use {
+            while (true) { LOGGER.info(it.readLine() ?: break) }
         }
-//        }
     }
 }

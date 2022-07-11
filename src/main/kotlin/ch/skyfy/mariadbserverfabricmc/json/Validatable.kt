@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package ch.skyfy.mariadbserverfabricmc.json
 
 import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod
