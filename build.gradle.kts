@@ -51,6 +51,15 @@ repositories {
     flatDir {
         dirs("libs")
     }
+
+    maven {
+        credentials {
+            username = ""
+            password = ""
+        }
+
+        url = uri("https://maven.pkg.jetbrains.space/amibeskyfy16/p/jsonconfig/json-config")
+    }
 }
 
 dependencies {
@@ -61,7 +70,9 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
-    transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.0")!!)
+//    transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")!!)
+    transitiveInclude(implementation("ch.skyfy.jsonconfig:json-config:2.0")!!)
+//    include(":JsonConfig-2.0")?.let { dependency -> implementation(dependency)?.let { transitiveInclude(it) } }
 
     handleIncludes(project, transitiveInclude)
 
