@@ -2,6 +2,7 @@ package ch.skyfy.mariadbserverfabricmc.config
 
 import ch.skyfy.mariadbserverfabricmc.json.Validatable
 
+@kotlinx.serialization.Serializable
 data class ModConfig(val port: Int) : Validatable {
     override fun validate() {
         validatePrimitivesType(mutableListOf())

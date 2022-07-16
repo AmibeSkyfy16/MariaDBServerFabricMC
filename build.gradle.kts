@@ -1,7 +1,6 @@
 @file:Suppress("GradlePackageVersionRange")
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.Properties
 
 val transitiveInclude: Configuration by configurations.creating
 
@@ -40,6 +39,7 @@ fun DependencyHandlerScope.handleIncludes(project: Project, configuration: Confi
 plugins {
     id("fabric-loom") version "0.12-SNAPSHOT"
     id("org.jetbrains.kotlin.jvm") version "1.7.10"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.10"
     idea
 }
 
@@ -50,20 +50,7 @@ version = property("mod_version")!!
 repositories {
     mavenCentral()
     mavenLocal()
-    flatDir {
-        dirs("libs")
-    }
-
-    maven {
-        credentials {
-            val properties = Properties()
-            properties.load(file("C:\\Users\\Skyfy16\\.gradle\\test.properties").inputStream())
-            username = "${properties["USERNAME"]}"
-            password = "${properties["PASSWORD"]}"
-        }
-
-        url = uri("https://maven.pkg.jetbrains.space/amibeskyfy16/p/jsonconfig/json-config")
-    }
+    maven("https://repo.repsy.io/mvn/amibeskyfy16/repo")
 }
 
 dependencies {
@@ -74,9 +61,7 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
-//    transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.10")!!)
-    transitiveInclude(implementation("ch.skyfy.jsonconfig:json-config:2.0")!!)
-//    include(":JsonConfig-2.0")?.let { dependency -> implementation(dependency)?.let { transitiveInclude(it) } }
+    transitiveInclude(implementation("ch.skyfy.jsonconfig:json-config:2.1")!!)
 
     handleIncludes(project, transitiveInclude)
 
