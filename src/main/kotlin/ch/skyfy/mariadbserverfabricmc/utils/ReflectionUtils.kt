@@ -1,7 +1,6 @@
 package ch.skyfy.mariadbserverfabricmc.utils
 
 import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod
-import ch.skyfy.mariadbserverfabricmc.exceptions.MariaDBServerFabricMCModException
 
 object ReflectionUtils {
     fun loadClassesByReflection(classesToLoad: Array<Class<*>>) {
@@ -14,7 +13,7 @@ object ReflectionUtils {
                 MariaDBServerFabricMCMod.LOGGER.fatal("A FATAL ERROR OCCURRED WITH FKMod")
                 MariaDBServerFabricMCMod.LOGGER.fatal("A FATAL ERROR OCCURRED WITH FKMod")
                 MariaDBServerFabricMCMod.LOGGER.fatal("A FATAL ERROR OCCURRED WITH FKMod")
-                throw MariaDBServerFabricMCModException(e)
+//                throw MariaDBServerFabricMCModException(e)
             }
         }
     }

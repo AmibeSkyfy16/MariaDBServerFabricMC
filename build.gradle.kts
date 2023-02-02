@@ -37,17 +37,20 @@ fun DependencyHandlerScope.handleIncludes(project: Project, configuration: Confi
 }
 
 plugins {
-    id("fabric-loom") version "0.12-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.7.0"
+    id("fabric-loom") version "1.1-SNAPSHOT"
+    id("org.jetbrains.kotlin.jvm") version "1.8.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
 }
 
-val archivesBaseName = property("archives_base_name")
-group = property("maven_group")!!
-version = property("mod_version")!!
+base {
+    archivesName.set(properties["archives_name"].toString())
+    group = property("maven_group")!!
+    version = property("mod_version")!!
+}
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    maven("https://repo.repsy.io/mvn/amibeskyfy16/repo")
 }
 
 dependencies {
@@ -58,16 +61,19 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
-    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
+//    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.1")!!)
     transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.7.0")!!)
+    transitiveInclude(implementation("ch.skyfy.json5configlib:json5-config-lib:1.0.21")!!)
+    transitiveInclude(implementation("org.buildobjects:jproc:2.8.2")!!)
 
     handleIncludes(project, transitiveInclude)
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
-    testImplementation("org.junit.platform:junit-platform-runner:1.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+//    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+//    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
+//    testImplementation("org.junit.platform:junit-platform-runner:1.8.2")
+//    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.0")
 }
 
 tasks {
@@ -82,9 +88,7 @@ tasks {
         }
     }
 
-    java {
-        withSourcesJar()
-    }
+    java { withSourcesJar() }
 
     named<KotlinCompile>("compileKotlin") {
         kotlinOptions.jvmTarget = javaVersion.toString()
@@ -97,12 +101,26 @@ tasks {
 
     named<Jar>("jar") {
         from("LICENSE") {
-            rename { "${it}_${archivesBaseName}" }
+            rename { "${it}_${base.archivesName}" }
         }
     }
 
     named<Test>("test") {
         useJUnitPlatform()
+
+        testLogging {
+            outputs.upToDateWhen { false } // When the build task is executed, stderr-stdout of test classes will be show
+            showStandardStreams = true
+        }
     }
 
+    val copyJarToTestServer = register("copyJarToTestServer") {
+        println("copy to server")
+        copyFile("build/libs/MariaDBServerFabricMC-${project.properties["mod_version"]}.jar", project.property("testServerModsFolder") as String)
+    }
+
+    build { doLast { copyJarToTestServer.get() } }
+
 }
+
+fun copyFile(src: String, dest: String) = copy { from(src);into(dest) }
