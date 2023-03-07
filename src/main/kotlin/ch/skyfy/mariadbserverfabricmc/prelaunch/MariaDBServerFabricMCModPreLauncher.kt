@@ -1,8 +1,9 @@
 package ch.skyfy.mariadbserverfabricmc.prelaunch
 
 
+import ch.skyfy.json5configlib.ConfigManager
 import ch.skyfy.mariadbserverfabricmc.MariaInstaller
-import ch.skyfy.mariadbserverfabricmc.utils.setupConfigDirectory
+import ch.skyfy.mariadbserverfabricmc.config.Configs
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint
 import org.apache.logging.log4j.LogManager
@@ -19,13 +20,16 @@ class MariaDBServerFabricMCModPreLauncher : PreLaunchEntrypoint {
     }
 
     init {
-        setupConfigDirectory()
+//        setupConfigDirectory()
+        ConfigManager.loadConfigs(arrayOf(Configs::class.java))
+
+        val m = MariaInstaller()
 
         Runtime.getRuntime().addShutdownHook(Thread {
             println("end ________")
+            m.stopMaria()
         })
 
-        MariaInstaller()
     }
 
     override fun onPreLaunch() {

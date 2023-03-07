@@ -207,4 +207,8 @@ class MariaInstaller(
         }
     }
 
+    fun stopMaria() {
+        println("Stopping maria")
+    }
+
 }
