@@ -1,6 +1,5 @@
 package ch.skyfy.mariadbserverfabricmc.utils
 
-import ch.skyfy.mariadbserverfabricmc.MariaDBServerFabricMCMod
 import kotlin.io.path.createDirectory
 import kotlin.io.path.exists
 
