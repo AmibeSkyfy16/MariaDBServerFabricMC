@@ -20,7 +20,6 @@ class MariaDBServerFabricMCModPreLauncher : PreLaunchEntrypoint {
     }
 
     init {
-//        setupConfigDirectory()
         ConfigManager.loadConfigs(arrayOf(Configs::class.java))
 
         val m = MariaInstaller()
@@ -29,12 +28,8 @@ class MariaDBServerFabricMCModPreLauncher : PreLaunchEntrypoint {
             println("end ________")
             m.stopMaria()
         })
-
     }
 
-    override fun onPreLaunch() {
-
-    }
-
+    override fun onPreLaunch() {}
 
 }

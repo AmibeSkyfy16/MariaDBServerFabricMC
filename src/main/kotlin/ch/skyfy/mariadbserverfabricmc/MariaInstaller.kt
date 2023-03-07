@@ -31,8 +31,8 @@ class MariaInstaller(
 ) : CoroutineScope {
 
     companion object {
-        const val MARIADB_ROOT_FOLDER_NAME = "mariadb-10.10.2-winx64"
-        const val MARIADB_ZIP_FILE_NAME = "mariadb-10.10.2-winx64.zip"
+        const val MARIADB_ROOT_FOLDER_NAME = "mariadb-10.11.2-winx64"
+        const val MARIADB_ZIP_FILE_NAME = "mariadb-10.11.2-winx64.zip"
     }
 
     init {

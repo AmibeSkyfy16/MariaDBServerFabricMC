@@ -61,11 +61,11 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${properties["fabric_version"]}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
-//    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.5")!!)
-    transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")!!)
     transitiveInclude(implementation("ch.skyfy.json5configlib:json5-config-lib:1.0.22")!!)
-    transitiveInclude(implementation("org.buildobjects:jproc:2.8.2")!!)
+//    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
+//    transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")!!)
+//    transitiveInclude(implementation("org.buildobjects:jproc:2.8.2")!!)
 
     handleIncludes(project, transitiveInclude)
 
