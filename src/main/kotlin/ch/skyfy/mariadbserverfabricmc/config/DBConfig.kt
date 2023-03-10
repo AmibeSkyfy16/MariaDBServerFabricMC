@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class DBConfig(
     val port: Int = 3307,
-    val password: String = "12345678"
+    val password: String = "Pa\$\$w0rd"
 ) : Validatable
