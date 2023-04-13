@@ -9,7 +9,7 @@ import kotlin.coroutines.CoroutineContext
 
 
 class MariaDBConsole(
-    val onReady: () -> Unit,
+    private val onReady: () -> Unit,
     override val coroutineContext: CoroutineContext = Dispatchers.IO
 ) : CoroutineScope {
 

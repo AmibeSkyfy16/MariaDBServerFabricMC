@@ -2,8 +2,8 @@ package ch.skyfy.mariadbserverfabricmc.prelaunch
 
 
 import ch.skyfy.json5configlib.ConfigManager
-import ch.skyfy.mariadbserverfabricmc.MariaInstaller
 import ch.skyfy.mariadbserverfabricmc.config.Configs
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.entrypoint.PreLaunchEntrypoint
 import org.apache.logging.log4j.LogManager
@@ -19,14 +19,20 @@ class MariaDBServerFabricMCModPreLauncher : PreLaunchEntrypoint {
         val LOGGER: Logger = LogManager.getLogger(MariaDBServerFabricMCModPreLauncher::class.java)
     }
 
+    var requiredShutdownHook = true
+
     init {
         ConfigManager.loadConfigs(arrayOf(Configs::class.java))
 
-        val m = MariaInstaller()
+        val mariaInstaller = MariaInstaller()
+
+        ServerLifecycleEvents.SERVER_STOPPING.register {
+            requiredShutdownHook = false
+            mariaInstaller.stopMaria()
+        }
 
         Runtime.getRuntime().addShutdownHook(Thread {
-            println("end ________")
-            m.stopMaria()
+            if(requiredShutdownHook) mariaInstaller.stopMaria(true)
         })
     }
 

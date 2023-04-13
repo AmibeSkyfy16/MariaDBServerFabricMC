@@ -29,6 +29,7 @@ dependencies {
 
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.5")!!)
     transitiveInclude(implementation("ch.skyfy.json5configlib:json5-config-lib:1.0.22")!!)
+    transitiveInclude(implementation("org.fusesource.jansi:jansi:2.4.0")!!)
 //    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
 //    transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")!!)
 //    transitiveInclude(implementation("org.buildobjects:jproc:2.8.2")!!)
@@ -39,7 +40,7 @@ dependencies {
 //    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
 //    testImplementation("org.junit.platform:junit-platform-runner:1.8.2")
 //    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.10")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.20")
 }
 
 tasks {
@@ -166,7 +167,7 @@ tasks {
 
     val copyJarToTestServer = register("copyJarToTestServer") {
         println("copying jar to server")
-//        copyFile("build/libs/${project.properties["archives_name"]}-${project.properties["mod_version"]}.jar", project.property("testServerModsFolder") as String)
+        copyFile("build/libs/${project.properties["archives_name"]}-${project.properties["mod_version"]}.jar", project.property("testServerModsFolder") as String)
 //        copyFile("build/libs/${project.properties["archives_name"]}-${project.properties["mod_version"]}.jar", project.property("testClientModsFolder") as String)
     }
 

@@ -46,4 +46,20 @@ class Test {
 
     }
 
+    @Test
+    fun testCustomTimeout(){
+        if (0 == 0) return
+        val time = System.currentTimeMillis()
+        var timedOut = false
+        while (true) {
+            Thread.sleep(100)
+            if ((System.currentTimeMillis() - time) / 1000 % 60 >= 20) {
+                println("Timeout, process mysqld.exe still alive, but the minecraft server will stop now")
+                timedOut = true
+                break
+            }
+        }
+        if(timedOut) println("timed out")
+    }
+
 }
