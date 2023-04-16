@@ -22,6 +22,8 @@ class MariaDBServerFabricMCModPreLauncher : PreLaunchEntrypoint {
     var requiredShutdownHook = true
 
     init {
+        println(FabricLoader.getInstance().environmentType.name)
+
         ConfigManager.loadConfigs(arrayOf(Configs::class.java))
 
         val mariaInstaller = MariaInstaller()
