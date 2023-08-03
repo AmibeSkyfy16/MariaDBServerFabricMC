@@ -3,9 +3,9 @@
 val transitiveInclude: Configuration by configurations.creating
 
 plugins {
-    id("fabric-loom") version "1.1-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.8.20"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.20"
+    id("fabric-loom") version "1.3-SNAPSHOT"
+    id("org.jetbrains.kotlin.jvm") version "1.8.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
 }
 
 base {
@@ -40,7 +40,7 @@ dependencies {
 //    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
 //    testImplementation("org.junit.platform:junit-platform-runner:1.8.2")
 //    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.20")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.22")
 }
 
 tasks {
@@ -132,7 +132,7 @@ tasks {
     }
 
     named<Wrapper>("wrapper") {
-        gradleVersion = "8.1"
+        gradleVersion = "8.2.1"
         distributionType = Wrapper.DistributionType.BIN
     }
 
@@ -167,7 +167,7 @@ tasks {
 
     val copyJarToTestServer = register("copyJarToTestServer") {
         println("copying jar to server")
-        copyFile("build/libs/${project.properties["archives_name"]}-${project.properties["mod_version"]}.jar", project.property("testServerModsFolder") as String)
+//        copyFile("build/libs/${project.properties["archives_name"]}-${project.properties["mod_version"]}.jar", project.property("testServerModsFolder") as String)
 //        copyFile("build/libs/${project.properties["archives_name"]}-${project.properties["mod_version"]}.jar", project.property("testClientModsFolder") as String)
     }
 
