@@ -3,9 +3,9 @@
 val transitiveInclude: Configuration by configurations.creating
 
 plugins {
-    id("fabric-loom") version "1.3-SNAPSHOT"
-    id("org.jetbrains.kotlin.jvm") version "1.8.22"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
+    id("fabric-loom") version "1.5-SNAPSHOT"
+    id("org.jetbrains.kotlin.jvm") version "1.9.23"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.23"
 }
 
 base {
@@ -28,8 +28,8 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${properties["fabric_kotlin_version"]}")
 
     transitiveInclude(implementation("net.lingala.zip4j:zip4j:2.11.5")!!)
-    transitiveInclude(implementation("ch.skyfy.json5configlib:json5-config-lib:1.0.22")!!)
-    transitiveInclude(implementation("org.fusesource.jansi:jansi:2.4.0")!!)
+    transitiveInclude(implementation("ch.skyfy.json5configlib:json5-config-lib:1.0.25")!!)
+    transitiveInclude(implementation("org.fusesource.jansi:jansi:2.4.1")!!)
 //    transitiveInclude(implementation("ch.vorburger.mariaDB4j:mariaDB4j:2.5.3")!!)
 //    transitiveInclude(implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")!!)
 //    transitiveInclude(implementation("org.buildobjects:jproc:2.8.2")!!)
@@ -40,8 +40,10 @@ dependencies {
 //    testImplementation("org.junit.jupiter:junit-jupiter-params:5.8.2")
 //    testImplementation("org.junit.platform:junit-platform-runner:1.8.2")
 //    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.8.22")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.23")
 }
+
+
 
 tasks {
 
@@ -132,7 +134,7 @@ tasks {
     }
 
     named<Wrapper>("wrapper") {
-        gradleVersion = "8.2.1"
+        gradleVersion = "8.7"
         distributionType = Wrapper.DistributionType.BIN
     }
 
